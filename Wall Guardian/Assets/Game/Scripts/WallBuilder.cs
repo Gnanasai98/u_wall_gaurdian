@@ -1,10 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WallBuilder : MonoBehaviour
 {
-    void CreateMesh(Vector3 bottomLeft,Vector3 bottomRight,Vector3 topLeft,Vector3 topRight)
+    [SerializeField] Transform collisionPoint;
+    // come back to this later
+    public void CreateMesh(Vector3 bottomLeft,Vector3 bottomRight,Vector3 topLeft,Vector3 topRight)
     {
         Mesh mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
@@ -39,4 +43,27 @@ public class WallBuilder : MonoBehaviour
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
     }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Wall"))
+        {
+            Vector2 point = (Vector2)collisionPoint.transform.position;
+            Debug.Log("TriggerEnter - posX: " + point.x + ", posY: " + point.y);
+        }
+    }
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Wall"))
+        {
+            Vector2 point = (Vector2)collisionPoint.transform.position;
+            Debug.Log("TriggerExit - posX: " + point.x + ", posY: " + point.y);
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        //game over
+    }
+
 }

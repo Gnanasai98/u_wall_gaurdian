@@ -4,11 +4,9 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField]
     private float runSpeed =3f;
-    private Rigidbody2D rb;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
     }
 
     public void Movement(Vector2 inputVector)
@@ -19,7 +17,7 @@ public class PlayerMovement : MonoBehaviour
         {
             // Move the player using Rigidbody
             Vector2 moveVector = moveDirection * runSpeed * Time.deltaTime;
-            rb.MovePosition(rb.position + moveVector);
+            transform.position += (Vector3)moveVector;
 
             // Rotate the player to face the movement direction
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
