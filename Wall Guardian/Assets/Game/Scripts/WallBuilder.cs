@@ -6,7 +6,11 @@ using UnityEngine;
 
 public class WallBuilder : MonoBehaviour
 {
-    [SerializeField] Transform collisionPoint;
+    [SerializeField] private Transform collisionPoint;
+    [SerializeField] private List<Vector2> inputVertices;
+
+    public List<Vector2> InputVertices { get => inputVertices; set => inputVertices = value; }
+
     // come back to this later
     public void CreateMesh(Vector3 bottomLeft,Vector3 bottomRight,Vector3 topLeft,Vector3 topRight)
     {
@@ -48,19 +52,30 @@ public class WallBuilder : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Wall"))
         {
-            Vector2 point = (Vector2)collisionPoint.transform.position;
-            Debug.Log("TriggerEnter - posX: " + point.x + ", posY: " + point.y);
+            Vector2 point = getCollsionPoint();
+            inputVertices.Add(point);
+            //create mesh
         }
     }
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Wall"))
         {
-            Vector2 point = (Vector2)collisionPoint.transform.position;
-            Debug.Log("TriggerExit - posX: " + point.x + ", posY: " + point.y);
+           Vector2 point = getCollsionPoint();
+            inputVertices.Clear();
+            inputVertices.Add(point);
         }
     }
 
+    private Vector2 getCollsionPoint()
+    {
+        float roundedPosX, roundedPosY;
+        roundedPosX = Mathf.Round(collisionPoint.transform.position.x * 1000f) / 1000f;
+        roundedPosY = Mathf.Round(collisionPoint.transform.position.y * 1000f) / 1000f;
+        return new Vector2(roundedPosX, roundedPosY);
+    }
+
+    //Enemy detection game over
     private void OnCollisionEnter2D(Collision2D other)
     {
         //game over

@@ -7,6 +7,10 @@ public class UserInputs : MonoBehaviour
     private float minX, maxX, minY, maxY;
     private Camera mainCamera;
     PlayerController controller;
+    Vector2 currentInput;
+    float horizontalInput = 0f;
+    float verticalInput = 0f;
+
     void Start()
     {
         mainCamera = Camera.main;
@@ -17,14 +21,18 @@ public class UserInputs : MonoBehaviour
     {
         CalculateCameraBounds();
         ClampToCameraBounds();
-        controller.InputVector = HandleInput();
+        HandleInput();
+        if (currentInput != HandleInput()) {
+            currentInput = HandleInput();
+            controller.InputVector = HandleInput();
+        }
 
     }
     Vector2 HandleInput()
     {
         float horizontalInput = 0f;
         float verticalInput = 0f;
-
+        
         if (Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S))
         {
             verticalInput = 1f;
