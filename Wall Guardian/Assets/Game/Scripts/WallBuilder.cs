@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,12 +9,19 @@ public class WallBuilder : MonoBehaviour
 {
     [SerializeField] private Transform collisionPoint;
     [SerializeField] private List<Vector2> inputVertices;
+    private bool canBuildWall = false;
 
     public List<Vector2> InputVertices { get => inputVertices; set => inputVertices = value; }
+    public bool CanBuildWall { get => canBuildWall; set => canBuildWall = value; }
 
     // come back to this later
-    public void CreateMesh(Vector3 bottomLeft,Vector3 bottomRight,Vector3 topLeft,Vector3 topRight)
+    public void CreateMesh(List<Vector2> inputVertices)
     {
+
+        foreach (Vector2 vertex in inputVertices)
+        {
+            Debug.Log(vertex);
+        }
         Mesh mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
 
@@ -53,8 +61,10 @@ public class WallBuilder : MonoBehaviour
         if (other.gameObject.CompareTag("Wall"))
         {
             Vector2 point = getCollsionPoint();
-            inputVertices.Add(point);
-            //create mesh
+            if(canBuildWall)
+                inputVertices.Add(point);
+            canBuildWall = false;
+            CreateMesh(inputVertices);
         }
     }
     private void OnTriggerExit2D(Collider2D other)
@@ -64,6 +74,7 @@ public class WallBuilder : MonoBehaviour
            Vector2 point = getCollsionPoint();
             inputVertices.Clear();
             inputVertices.Add(point);
+            canBuildWall = true;
         }
     }
 

@@ -8,8 +8,7 @@ public class UserInputs : MonoBehaviour
     private Camera mainCamera;
     PlayerController controller;
     Vector2 currentInput;
-    float horizontalInput = 0f;
-    float verticalInput = 0f;
+    private Vector2 lastInput = Vector2.zero;
 
     void Start()
     {
@@ -30,30 +29,30 @@ public class UserInputs : MonoBehaviour
     }
     Vector2 HandleInput()
     {
-        float horizontalInput = 0f;
-        float verticalInput = 0f;
-        
-        if (Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.W))
         {
-            verticalInput = 1f;
+            lastInput = Vector2.up;
         }
-        else if (Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.W))
+        else if (Input.GetKeyDown(KeyCode.S))
         {
-            verticalInput = -1f;
+            lastInput = Vector2.down;
         }
-        else if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+
+        if (Input.GetKeyDown(KeyCode.A))
         {
-            horizontalInput = -1f;
+            lastInput = Vector2.left;
         }
-        else if (Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.A))
+        else if (Input.GetKeyDown(KeyCode.D))
         {
-            horizontalInput = 1f;
+            lastInput = Vector2.right;
         }
 
         // Normalize the input vector to prevent faster movement when moving diagonally
-        Vector2 inputVector = new Vector2(horizontalInput, verticalInput).normalized;
+        Vector2 inputVector = lastInput.normalized;
+       // Debug.Log(inputVector.x + " , " + inputVector.y);
         return inputVector;
     }
+
     void CalculateCameraBounds()
     {
         if (mainCamera != null)

@@ -15,10 +15,12 @@ public class PlayerController : MonoBehaviour
         set
         {
             inputVector = value;
-            List<Vector2> currentVertices = wallBuilder.InputVertices;
-            currentVertices.Add(inputVector);
-            wallBuilder.InputVertices = currentVertices;
-            Debug.Log(wallBuilder.InputVertices.ToString());
+            if (wallBuilder.CanBuildWall) {
+                List<Vector2> currentVertices = wallBuilder.InputVertices;
+                currentVertices.Add(transform.position);
+                wallBuilder.InputVertices = currentVertices;
+            }
+            
         }
     }
 
