@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class UserInputs : MonoBehaviour
@@ -10,10 +12,18 @@ public class UserInputs : MonoBehaviour
     Vector2 currentInput;
     private Vector2 lastInput = Vector2.zero;
 
+
+    private Renderer noseRenderer;
+    public float animationInterval = .1f; // Adjust the interval as needed
+    private bool isVisible = true;
+
     void Start()
     {
         mainCamera = Camera.main;
         controller = GetComponent<PlayerController>();
+        noseRenderer = GameObject.FindWithTag("nose").GetComponent<Renderer>();
+        InvokeRepeating("ToggleVisibility", 2f, .5f);
+
     }
 
     void Update()
@@ -27,6 +37,7 @@ public class UserInputs : MonoBehaviour
         }
 
     }
+
     Vector2 HandleInput()
     {
         if (Input.GetKeyDown(KeyCode.W))
@@ -74,4 +85,10 @@ public class UserInputs : MonoBehaviour
         transform.position = new Vector3(clampedX, clampedY, transform.position.z);
     }
 
+
+     private void ToggleVisibility()
+    {
+        isVisible = !isVisible;
+        noseRenderer.enabled = isVisible;
+    }
 }
