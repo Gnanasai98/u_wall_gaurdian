@@ -1,5 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Net;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -15,10 +16,12 @@ public class PlayerController : MonoBehaviour
         set
         {
             inputVector = value;
+
             if (wallBuilder.CanBuildWall) {
                 List<Vector2> currentVertices = wallBuilder.InputVertices;
-                currentVertices.Add(transform.position);
+                currentVertices.Add(TransformUtilities.getRoundPoint(wallBuilder.startPointC.transform.position));
                 wallBuilder.InputVertices = currentVertices;
+                Debug.Log(TransformUtilities.getRoundPoint(wallBuilder.startPointC.transform.position));
             }
             
         }
@@ -29,12 +32,13 @@ public class PlayerController : MonoBehaviour
     //reference gameobjects
     PlayerMovement movements;
     WallBuilder wallBuilder;
-    
+
+
     //other components
     private void Start()
     {
         movements = GetComponent<PlayerMovement>();
-        wallBuilder = GetComponent<WallBuilder>();  
+        wallBuilder = GetComponent<WallBuilder>();
     }
     private void Update()
     {
@@ -42,6 +46,8 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        wallBuilder.GenerateLineCast();
+
         movements.Movement(inputVector);
-    }
+    }   
 }

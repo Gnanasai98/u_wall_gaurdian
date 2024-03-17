@@ -1,19 +1,32 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using Unity.VisualScripting;
+using UnityEditor.VersionControl;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 public class WallBuilder : MonoBehaviour
 {
     [SerializeField] private List<Vector2> inputVertices;
     [SerializeField] private Material material;
+    [SerializeField] private GameObject vertexobj;
+
+
+    //Raycast 
+    [SerializeField] LayerMask wallMask;
+    public Transform startPoint1, startPoint2,startPointC;
+    [SerializeField] float rayLength;
+
+
     private bool canBuildWall = false;
+    private bool wasHittingWall = false; // Variable to track previous state
 
     public List<Vector2> InputVertices { get => inputVertices; set => inputVertices = value; }
     public bool CanBuildWall { get => canBuildWall; set => canBuildWall = value; }
-
+   
+    private void Start()
+    {
+    }
     // come back to this later
     public void CreateMesh(List<Vector2> inputVertices)
     {
@@ -74,41 +87,59 @@ public class WallBuilder : MonoBehaviour
         meshFilter.mesh = mesh;
     }
 
-
-    void OnTriggerEnter2D(Collider2D other)
+    public void GenerateLineCast()
     {
-        if (other.gameObject.CompareTag("Wall"))
+        bool hit1 = Physics2D.Linecast(startPoint1.position, startPoint1.position + transform.right * -rayLength, wallMask);
+        bool hit2 = Physics2D.Linecast(startPoint1.position, startPoint2.position + transform.right * -rayLength, wallMask);
+        bool hitC = Physics2D.Linecast(startPointC.position, startPointC.position + transform.right * -rayLength, wallMask);
+        bool isHittingWall = hit1 || hit2 || hitC; // Combine hit checks
+
+        if (isHittingWall && !wasHittingWall) // Check if just started hitting the wall
         {
-            Vector2 point = getCollsionPoint();
-            if(canBuildWall)
-                inputVertices.Add(point);
-            canBuildWall = false;
-            CreateMesh(inputVertices);
+            EndingPoint();
         }
-    }
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.gameObject.CompareTag("Wall"))
+        else if (!isHittingWall && wasHittingWall) // Check if just stopped hitting the wall
         {
-           Vector2 point = getCollsionPoint();
-            inputVertices.Clear();
-            inputVertices.Add(point);
-            canBuildWall = true;
+            StartingPoint();
         }
+
+        wasHittingWall = isHittingWall; // Update previous state
     }
 
-    private Vector2 getCollsionPoint()
+    private void EndingPoint()
     {
-        float roundedPosX, roundedPosY;
-        roundedPosX = Mathf.Round(transform.position.x * 1000f) / 1000f;
-        roundedPosY = Mathf.Round(transform.position.y * 1000f) / 1000f;
-        return new Vector2(roundedPosX, roundedPosY);
+        Vector2 endPoint = TransformUtilities.getRoundPoint(new Vector2(startPointC.position.x, startPointC.position.y));
+        canBuildWall = false;
+        inputVertices.Add(endPoint);
+        string logString = "Input vertices:";
+        inputVertices.ForEach(vertex =>
+        {
+            logString += " , " + vertex;
+            GameObject result = Instantiate(vertexobj, vertex, Quaternion.identity);
+        });
+        Debug.Log(logString);
     }
 
-    //Enemy detection game over
-    private void OnCollisionEnter2D(Collision2D other)
+    private void StartingPoint()
     {
-        //game over
+        Quaternion startPointCRot = startPointC.transform.rotation;
+        Debug.Log(startPointCRot.eulerAngles);
+        Vector2 startPoint = TransformUtilities.getRoundPoint(new Vector2(startPointC.position.x, startPointC.position.y - rayLength));
+        canBuildWall = true;
+        inputVertices.Clear();
+        if (canBuildWall)
+            inputVertices.Add(startPoint);
     }
 
+    private void OnDrawGizmos()
+    {
+        // Draw the line segments in the Scene view using Gizmos
+        Gizmos.color = UnityEngine.Color.green;
+        Gizmos.DrawLine(startPoint1.position, startPoint1.position + transform.right * -rayLength);
+        Gizmos.DrawLine(startPoint2.position, startPoint2.position + transform.right * -rayLength);
+        Gizmos.DrawLine(startPointC.position, startPointC.position + transform.right * -rayLength);
+
+    }
+   
+   
 }
